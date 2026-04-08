@@ -78,8 +78,23 @@
         .expand-icon { text-align: center; margin-top: 15px; font-size: 1rem; color: var(--border-line); transition: 0.3s; }
         .era-group.active .expand-icon { transform: rotate(180deg); color: var(--rail-blue); }
 
-        .details-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease; text-align: left; background: rgba(0, 0, 0, 0.3); border-radius: 4px; }
-        .era-group.active .details-content { max-height: 3000px; margin-top: 20px; padding: 20px; border: 1px solid var(--border-line); }
+        /* 애니메이션 박스 최적화 */
+        .details-content { 
+            max-height: 0; 
+            overflow: hidden; 
+            transition: max-height 0.3s ease-out, padding 0.3s ease-out, margin-top 0.3s ease-out; 
+            text-align: left; 
+            background: rgba(0, 0, 0, 0.3); 
+            border-radius: 4px; 
+            padding: 0 20px; /* 초기 패딩 0 */
+            border: 0px solid transparent; /* 초기 테두리 0 */
+        }
+
+        .era-group.active .details-content { 
+            margin-top: 20px; 
+            padding: 20px; 
+            border: 1px solid var(--border-line); 
+        }
 
         .sub-event { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .sub-event:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
@@ -200,7 +215,7 @@
                 </div>
                 <div class="sub-event">
                     <div class="sub-event-header"><span class="sub-event-name">2차 제왕 전쟁</span></div>
-                    <p class="sub-event-desc">지식 학회가 스타피스 컴퍼니와의 협업으로 모조 반유기 방정식을 개발한다. 방정식의 영향으로 유기체인 루버트 2세가 탄생한다. 2차 제왕 전쟁이 발발한다. 폴카 카카몬드의 개입으로 종전.</p>
+                    <p class="sub-event-desc">지식 학회와 스타피스 컴퍼니와의 협업으로 모조 반유기 방정식을 개발한다. 방정식의 영향으로 유기체인 루버트 2세가 탄생한다. 2차 제왕 전쟁이 발발한다. 폴카 카카몬드의 개입으로 종전.</p>
                 </div>
             </div>
         </div>
@@ -400,7 +415,18 @@
 <script>
     function toggleEra(cardElement) {
         const group = cardElement.closest('.era-group');
-        group.classList.toggle('active');
+        const content = group.querySelector('.details-content');
+        
+        if (!group.classList.contains('active')) {
+            // 열기
+            group.classList.add('active');
+            // 패딩과 테두리가 적용된 최종 높이 계산
+            content.style.maxHeight = (content.scrollHeight + 40) + "px"; 
+        } else {
+            // 닫기
+            content.style.maxHeight = "0px";
+            group.classList.remove('active');
+        }
     }
 </script>
 
