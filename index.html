@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>붕괴: 스타레일 연표</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+KR:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --space-dark: #05070a; 
+            --rail-blue: #00d2ff;  
+            --amber-gold: #f3ae3d; 
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --border-line: rgba(255, 255, 255, 0.15);
+            --text-silver: #c2c2c2;
+        }
+
+        body {
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            background-color: var(--space-dark);
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(108, 92, 231, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(0, 210, 255, 0.1) 0%, transparent 40%);
+            color: #ffffff;
+            margin: 0;
+            padding: 80px 20px;
+            overflow-x: hidden;
+        }
+
+        h1 {
+            text-align: center;
+            font-family: 'Cinzel', 'Noto Serif KR', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 5px;
+            margin-bottom: 100px;
+            background: linear-gradient(to right, var(--rail-blue), #fff, var(--amber-gold));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 210, 255, 0.3);
+        }
+
+        .timeline-container { position: relative; max-width: 1000px; margin: 0 auto; }
+        .timeline-container::after {
+            content: ''; position: absolute; width: 2px;
+            background: linear-gradient(to bottom, transparent, var(--border-line), var(--border-line), transparent);
+            top: 0; bottom: 0; left: 50%; margin-left: -1px;
+        }
+
+        .era-group { position: relative; width: 50%; margin-bottom: 80px; z-index: 1; }
+        .era-group:nth-child(odd) { left: 0; padding-right: 50px; text-align: right; box-sizing: border-box; }
+        .era-group:nth-child(even) { left: 50%; padding-left: 50px; text-align: left; box-sizing: border-box; }
+
+        .era-group::after {
+            content: ''; position: absolute; width: 12px; height: 12px;
+            background: var(--space-dark); border: 2px solid var(--rail-blue);
+            box-shadow: 0 0 15px var(--rail-blue); border-radius: 50%;
+            top: 35px; z-index: 10;
+        }
+        .era-group:nth-child(odd)::after { right: -8px; }
+        .era-group:nth-child(even)::after { left: -8px; }
+
+        .era-card {
+            background: var(--glass-bg); border: 1px solid var(--border-line);
+            border-radius: 4px; padding: 30px; cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            backdrop-filter: blur(10px); position: relative;
+            overflow: hidden; display: inline-block; max-width: 100%;
+        }
+
+        .era-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--amber-gold); opacity: 0.7; }
+        .era-card:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--rail-blue); }
+
+        .era-title { font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: 10px; display: block; }
+        .era-period { font-size: 1rem; color: var(--amber-gold); margin-bottom: 15px; display: block; font-weight: 600; }
+        .era-summary { font-size: 0.95rem; color: var(--text-silver); line-height: 1.6; margin: 0; white-space: pre-line; }
+
+        .expand-icon { text-align: center; margin-top: 15px; font-size: 1rem; color: var(--border-line); transition: 0.3s; }
+        .era-group.active .expand-icon { transform: rotate(180deg); color: var(--rail-blue); }
+
+        .details-content { max-height: 0; overflow: hidden; transition: max-height 0.5s ease; text-align: left; background: rgba(0, 0, 0, 0.3); border-radius: 4px; }
+        .era-group.active .details-content { max-height: 3000px; margin-top: 20px; padding: 20px; border: 1px solid var(--border-line); }
+
+        .sub-event { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .sub-event:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
+        .sub-event-header { display: flex; align-items: baseline; gap: 10px; }
+        .sub-event-name { font-size: 1.1rem; font-weight: 700; color: var(--rail-blue); }
+        .sub-event-year { font-size: 0.85rem; color: #888; }
+        .sub-event-desc { font-size: 0.9rem; color: var(--text-silver); margin-top: 8px; line-height: 1.6; white-space: pre-line; }
+
+        @media screen and (max-width: 768px) {
+            .timeline-container::after { left: 20px; }
+            .era-group { width: 100%; left: 0 !important; padding-left: 45px !important; padding-right: 0 !important; text-align: left !important; }
+            .era-group::after { left: 14px !important; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>붕괴: 스타레일 연표</h1>
+
+<div class="timeline-container">
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">앰버기원 이전</span>
+            <span class="era-period">???년 ~ ???년</span>
+            <p class="era-summary">황혼 전쟁</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">황혼 전쟁</span></div>
+                    <p class="sub-event-desc">스타피스 컴퍼니가 의도적으로 기록을 지운 시기. 황혼 전쟁 진행.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">0~180 앰버기원</span>
+            <span class="era-period">???년 ~ ???년</span>
+            <p class="era-summary">공백의 시기</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">공백의 시기</span></div>
+                    <p class="sub-event-desc">역사학적 기록이 거의 남아있지 않은 공백의 시기.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">1168 앰버기원</span>
+            <span class="era-period">???년 ~ ???년</span>
+            <p class="era-summary">"첫 번영" 사건</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">"첫 번영" 사건</span></div>
+                    <p class="sub-event-desc">개척의 에이언즈 아키비리가 은하계를 연결한다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">약 1357 앰버기원</span>
+            <span class="era-period">???년 ~ ???년</span>
+            <p class="era-summary">곤충 떼 재난
+기억의 후리 탄생
+질서의 에나 소멸</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">곤충 떼 재난</span></div>
+                    <p class="sub-event-desc">약 800 앰버기원 전. 번식의 에이언즈 타이츠론스가 곤충 떼 재난을 일으킨다.</p>
+                </div>
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">기억의 후리 탄생</span></div>
+                    <p class="sub-event-desc">곤충 떼 재난 중 기억의 에이언즈 후리가 탄생한다.</p>
+                </div>
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">질서의 에나 소멸</span></div>
+                    <p class="sub-event-desc">질서의 에이언즈 에나가 화합의 에이언즈 시페에게 흡수되어 소멸한다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">약 1387 앰버기원</span>
+            <span class="era-period">???년 ~ ???년</span>
+            <p class="era-summary">스타피스 컴퍼니 설립</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">스타피스 컴퍼니 설립</span></div>
+                    <p class="sub-event-desc">약 770 앰버기원 전. 앰버 로드 지원대가 곤충 떼 재난을 통해 급격히 성장하여 루이스 플레밍이 스타피스 컴퍼니를 설립한다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">???</span>
+            <span class="era-period">???년 ~ ???년</span>
+            <p class="era-summary">1차 제왕 전쟁
+2차 제왕 전쟁</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">1차 제왕 전쟁</span></div>
+                    <p class="sub-event-desc">제왕 루버트에 의한 반유기 방정식으로 무기체들의 반란이 발발한다. 폴카 카카몬드의 개입으로 종전.</p>
+                </div>
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">2차 제왕 전쟁</span></div>
+                    <p class="sub-event-desc">지식 학회가 스타피스 컴퍼니와의 협업으로 모조 반유기 방정식을 개발한다. 방정식의 영향으로 유기체인 루버트 2세가 탄생한다. 2차 제왕 전쟁이 발발한다. 폴카 카카몬드의 개입으로 종전.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">약 2058 앰버기원</span>
+            <span class="era-period">???년 ~ ???년</span>
+            <p class="era-summary">학파 전쟁</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">학파 전쟁</span></div>
+                    <p class="sub-event-desc">약 100여 앰버기원 전. 셉터 시스템을 스타피스 컴퍼니가 회수하여 지식 학회에 분석을 요청한다. 학회 내부에서 셉터를 사이에 둔 전쟁이 발발한다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">???</span>
+            <span class="era-period">3400년 ~ 4000년</span>
+            <p class="era-summary">1차 풍요의 백성 전쟁
+수렵의 란 탄생</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header">
+                        <span class="sub-event-name">1차 풍요의 백성 전쟁</span>
+                        <span class="sub-event-year">3400년</span>
+                    </div>
+                    <p class="sub-event-desc">선주의 삼겁시대. 선주 함대가 풍요의 백성 종족 날개를 짜는 자들과 조우하여 교전한다. 제 1차 풍요의 백성 전쟁이 발발한다.</p>
+                </div>
+                <div class="sub-event">
+                    <div class="sub-event-header">
+                        <span class="sub-event-name">수렵의 란 탄생</span>
+                        <span class="sub-event-year">4000년</span>
+                    </div>
+                    <p class="sub-event-desc">제 1차 풍요의 전쟁 중 '천궁'이 불멸의 거목을 부수고 수렵의 에이언즈 란으로 각성한다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">2146 앰버기원</span>
+            <span class="era-period">5260년 ~ 5500년</span>
+            <p class="era-summary">개척의 아키비리 사망
+파멸의 나누크 탄생
+흉조 선봉 등장</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">개척의 아키비리 사망</span></div>
+                    <p class="sub-event-desc">개척의 에이언즈 아키비리가 알 수 없는 이유로 사망한다.</p>
+                </div>
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">파멸의 나누크 탄생</span></div>
+                    <p class="sub-event-desc">파멸의 에이언즈 나누크가 행성 아들리분에서 파멸의 에이언즈로 각성한다. 행성 아들리분이 파괴된다.</p>
+                </div>
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">흉조 선봉 등장</span></div>
+                    <p class="sub-event-desc">종말의 테르미누스를 추종하는 흉조 선봉이 모습을 드러낸다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">2147 앰버기원</span>
+            <span class="era-period">5500년 ~ 5700년</span>
+            <p class="era-summary">스텔라론 등장
+페나코니 건국
+절멸 대군 주로 사망
+2차 풍요의 백성 전쟁
+야릴로 6 침공
+음월의 난</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">스텔라론 등장</span></div>
+                    <p class="sub-event-desc">만계의 암, 스텔라론 현상이 발생하기 시작한다.</p>
+                </div>
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">페나코니 건국</span></div>
+                    <p class="sub-event-desc">아스다나 은하계에서 하누누에 의해 페나코니 독립전쟁이 발발한다. 페나코니가 스타피스 컴퍼니 산하에서 독립한다. 해당 전쟁에는 무명객 미하엘, 라자리나, 티어난이 참여한다.</p>
+                </div>
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">절멸 대군 주로 사망</span></div>
+                    <p class="sub-event-desc">문명 세계 보코프에서 갤럭시 레인저가 불나방 작전을 실행한다. 곤충 떼를 이용하여 절멸 대군 주로를 암살한다. 애쉬베일이 팔의 그림자를 이용하여 절멸 대군 주로를 삼킨다.</p>
+                </div>
+                <div class="sub-event">
+                    <div class="sub-event-header">
+                        <span class="sub-event-name">2차 풍요의 백성 전쟁</span>
+                        <span class="sub-event-year">5749년</span>
+                    </div>
+                    <p class="sub-event-desc">풍요의 사도 찰나가 풍요 연합을 이끌고 선주 옥궐을 침공한다. 제 2차 풍요의 백성 전쟁이 발발한다. 구름 위 5전사가 결성되나, 채 100년이 되지 않아 해체된다.</p>
+                </div>
+                <div class="sub-event">
+                    <div class="sub-event-header">
+                        <span class="sub-event-name">야릴로6 침공</span>
+                        <span class="sub-event-year">720~730년 전</span>
+                    </div>
+                    <p class="sub-event-desc">스텔라론이 야릴로6에 추락한다. 그로부터 10년 후 반물질 군단이 침공을 시작한다.</p>
+                </div>
+                <div class="sub-event">
+                    <div class="sub-event-header">
+                        <span class="sub-event-name">음월의 난</span>
+                        <span class="sub-event-year">700년 전</span>
+                    </div>
+                    <p class="sub-event-desc">음월군 단풍과 장인 응성이 찰나의 살점을 이용하여 화룡묘법을 통해 백주의 부활을 시도하나 실패한다. 응성은 풍요의 축복을 받아 불로불사의 몸을 갖게 되고, 타지로 유배당한다. 단풍은 단항으로 강제적으로 환생하여 선주 연맹에서 추방된다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">2151 앰버기원</span>
+            <span class="era-period">???</span>
+            <p class="era-summary">페나코니 꿈 건축 프로젝트</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">페나코니 꿈 건축 프로젝트</span></div>
+                    <p class="sub-event-desc">페나코니에서 꿈 건축 프로젝트가 시작된다. 열두 개의 꿈세계가 완성된다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">2155 앰버기원</span>
+            <span class="era-period">???</span>
+            <p class="era-summary">핏빛 바커공 사건</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header"><span class="sub-event-name">핏빛 바커공 사건</span></div>
+                    <p class="sub-event-desc">원시 박사와 갤럭시 레인저가 바커공 행성에서 충돌한다. 원시 박사의 회귀 실험이 저지되나, 갤럭시 레인저는 크게 세력을 잃는다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">2157 앰버기원</span>
+            <span class="era-period">???</span>
+            <p class="era-summary">3차 풍요의 백성 전쟁
+은하열차 운행 재개</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header">
+                        <span class="sub-event-name">3차 풍요의 백성 전쟁</span>
+                        <span class="sub-event-year">30년 전</span>
+                    </div>
+                    <p class="sub-event-desc">보리인이 다른 풍요의 백성들과 결집하여 선주 방호를 습격한다. 부현과 비소는 스승을 잃고, 초구는 상관을, 단우는 연인을, 어공은 친구를 잃는다.</p>
+                </div>
+                <div class="sub-event">
+                    <div class="sub-event-header">
+                        <span class="sub-event-name">은하열차 운행 재개</span>
+                        <span class="sub-event-year">15년 전</span>
+                    </div>
+                    <p class="sub-event-desc">무명객 히메코가 은하열차를 수리하여 다시 운행을 재개한다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="era-group">
+        <div class="era-card" onclick="toggleEra(this)">
+            <span class="era-title">2158 앰버기원</span>
+            <span class="era-period">8100년~</span>
+            <p class="era-summary">야릴로6 해방</p>
+            <div class="expand-icon">▼</div>
+            <div class="details-content">
+                <div class="sub-event">
+                    <div class="sub-event-header">
+                        <span class="sub-event-name">야릴로6 해방</span>
+                        <span class="sub-event-year">현재</span>
+                    </div>
+                    <p class="sub-event-desc">은하열차의 방문으로 야릴로6가 반물질 군단의 침공에서 해방된다. 쿠쿠리아와 개척자의 전투 중, 보존의 클리포트가 망치를 내려쳐 앰버기원이 전환된다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function toggleEra(cardElement) {
+        const group = cardElement.closest('.era-group');
+        group.classList.toggle('active');
+    }
+</script>
+
+</body>
+</html>
